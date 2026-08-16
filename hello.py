@@ -1,6 +1,9 @@
 import telebot
 import os
 import threading
+from flask import Flask
+
+app = Flask(__name__)
 
 # Direct Token & Chat ID
 API_TOKEN = "8723657210:AAHyasRlDYvtpTZ3_dEWBdCZokH_eDcRPZk"  # Double quotes ke andar exact token paste karein
