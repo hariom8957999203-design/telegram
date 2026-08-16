@@ -367,24 +367,25 @@ def process_manual_request(message):
     except Exception:
         bot.reply_to(message, "⚠️ Market Stream Error. Try again.")
 
-# =====================================================================
+# ============================================================
 # 8. MAIN EXECUTION ENGINE
-# =====================================================================
+# ============================================================
+
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
     threading.Thread(target=auto_market_scanner, daemon=True).start()
-    print("🚀 Dual Strategy Quantum Bot active.")
-    
-    # Force reset old sessions
-   try:
-    # आपका code
-    ...
-except Exception as e:
-    print(f"Error: {e}")
-        
-    bot.infinity_polling(timeout=20, long_polling_timeout=10, skip_pending=True)
-    except Exception as e:
-        bot.reply_to(message, f"⚠️ Analysis scan down. Dobara type karke bhejein.")
 
-print("🚀 Cloud Engine Started Successfully!")
-bot.infinity_polling()
+    print("🚀 Dual Strategy Quantum Bot active.")
+
+    # Force reset old sessions
+    try:
+        print("🔄 Starting bot polling...")
+
+        bot.infinity_polling(
+            timeout=20,
+            long_polling_timeout=10,
+            skip_pending=True
+        )
+
+    except Exception as e:
+        print(f"❌ Bot polling error: {e}")
