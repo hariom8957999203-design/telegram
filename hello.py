@@ -376,11 +376,11 @@ if __name__ == "__main__":
     print("🚀 Dual Strategy Quantum Bot active.")
     
     # Force reset old sessions
-    try:
-        bot.remove_webhook()
-        time.sleep(1)
-    except Exception:
-        pass
+   try:
+    # आपका code
+    ...
+except Exception as e:
+    print(f"Error: {e}")
         
     bot.infinity_polling(timeout=20, long_polling_timeout=10, skip_pending=True)
     except Exception as e:
