@@ -1,3 +1,4 @@
+import time
 import telebot
 import os
 import threading
