@@ -320,7 +320,24 @@ def process_manual_request(message):
   print("🔥 TELEGRAM REQUEST RECEIVED")
 print("👤 CHAT ID:", message.chat.id)
 print("📝 USER MESSAGE:", message.text)
-    bot.reply_to(message, f"⚡ Analyzing both strategies for {symbol}...")
+ try:
+    bot.reply_to(
+        message,
+        f"🚀 Analyzing both strategies for {symbol}..."
+    )
+
+    # आगे का analysis code
+    ...
+
+except Exception as e:
+    import traceback
+    print("❌ SIGNAL ERROR:", repr(e))
+    traceback.print_exc()
+
+    bot.reply_to(
+        message,
+        f"⚠️ Signal error: {str(e)[:300]}"
+    )
     try:
         df_curr_raw = get_realtime_df(symbol, period="1mo", interval="15m")
         df_macro_raw = get_realtime_df(symbol, period="3mo", interval="1h")
