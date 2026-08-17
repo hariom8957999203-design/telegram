@@ -316,28 +316,42 @@ def show_status(message):
     bot.reply_to(message, summary, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda message: True)
+@bot.message_handler(func=lambda message: True)
 def process_manual_request(message):
-  print("🔥 TELEGRAM REQUEST RECEIVED")
-print("👤 CHAT ID:", message.chat.id)
-print("📝 USER MESSAGE:", message.text)
- try:
-    bot.reply_to(
-        message,
-        f"🚀 Analyzing both strategies for {symbol}..."
-    )
+    print("🔥 TELEGRAM REQUEST RECEIVED")
+    print("👤 CHAT ID:", message.chat.id)
+    print("📝 USER MESSAGE:", message.text)
 
-    # आगे का analysis code
-    ...
+    try:
+        bot.reply_to(
+            message,
+            "🚀 Analyzing your stock signal..."
+        )
 
-except Exception as e:
-    import traceback
-    print("❌ SIGNAL ERROR:", repr(e))
-    traceback.print_exc()
+        # User message ko symbol maan rahe hain
+        symbol = message.text.strip().upper()
 
-    bot.reply_to(
-        message,
-        f"⚠️ Signal error: {str(e)[:300]}"
-    )
+        if not symbol:
+            bot.reply_to(message, "⚠️ Stock symbol bhejo. Example: RELIANCE")
+            return
+
+        print("📊 ANALYZING SYMBOL:", symbol)
+
+        # Yahan tumhara existing analysis code chalega
+        # ------------------------------------------------
+        # Existing analysis code yahan rakho
+        # ------------------------------------------------
+
+    except Exception as e:
+        import traceback
+
+        print("❌ SIGNAL ERROR:", repr(e))
+        traceback.print_exc()
+
+        bot.reply_to(
+            message,
+            f"⚠️ Signal error: {str(e)[:300]}"
+        )
     try:
         df_curr_raw = get_realtime_df(symbol, period="1mo", interval="15m")
         df_macro_raw = get_realtime_df(symbol, period="3mo", interval="1h")
