@@ -317,9 +317,9 @@ def show_status(message):
 
 @bot.message_handler(func=lambda message: True)
 def process_manual_request(message):
-    symbol = message.text.upper().replace(" ", "").strip()
-    if symbol.startswith('/'): return
-
+  print("🔥 TELEGRAM REQUEST RECEIVED")
+print("👤 CHAT ID:", message.chat.id)
+print("📝 USER MESSAGE:", message.text)
     bot.reply_to(message, f"⚡ Analyzing both strategies for {symbol}...")
     try:
         df_curr_raw = get_realtime_df(symbol, period="1mo", interval="15m")
@@ -368,8 +368,19 @@ def process_manual_request(message):
         )
         bot.send_message(message.chat.id, msg2, parse_mode="Markdown")
 
-    except Exception:
-        bot.reply_to(message, "⚠️ Market Stream Error. Try again.")
+   except Exception as e:
+    import traceback
+
+    print("❌ SIGNAL ERROR:", repr(e))
+    traceback.print_exc()
+
+    try:
+        bot.reply_to(
+            message,
+            f"⚠️ Signal error:\n{str(e)[:500]}"
+        )
+    except Exception as send_error:
+        print("❌ TELEGRAM SEND ERROR:", repr(send_error))
 
 # ============================================================
 # 8. MAIN EXECUTION ENGINE
