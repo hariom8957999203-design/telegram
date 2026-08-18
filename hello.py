@@ -399,9 +399,10 @@ def process_manual_request(message):
         )
         bot.send_message(message.chat.id, msg2, parse_mode="Markdown")
 
- try:
-    # Aapka code yahan
-    pass
+# Function ya loop ke andar alignment aisi honi chahiye:
+try:
+    # 4 spaces dekar code likhein
+    ticker = yf.Ticker(symbol)
 except Exception as e:
     print(f"Error: {e}")
 
