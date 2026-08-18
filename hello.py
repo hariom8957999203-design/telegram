@@ -1,20 +1,24 @@
 import time
-import telebot
 import os
 import threading
+import traceback
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import telebot
 from flask import Flask
 
 app = Flask(__name__)
 
 # Direct Token & Chat ID
-API_TOKEN = "8723657210:AAHyasRlDYvtpTZ3_dEWBdCZokH_eDcRPZk"  # Double quotes ke andar exact token paste karein
+API_TOKEN = "8723657210:AAHyasRlDYvtpTZ3_dEWBdCZokH_eDcRPZk"
 CHAT_ID = "8723657210"
 
 bot = telebot.TeleBot(API_TOKEN)
+
 # =====================================================================
 # 1. RENDER PORT BINDING ENGINE (24/7 Uptime)
 # =====================================================================
-app = Flask(__name__)
 
 @app.route('/')
 def home():
@@ -35,10 +39,6 @@ WATCHLIST = [
     "PSB.NS", "NHPC.NS", "SUZLON.NS", "TRIDENT.NS", "IRB.NS"
 ]
 
-API_TOKEN = "8723657210:AAHyasRlDYvtpTZ3_dEWBdCZokH_eDcRPZk"
-CHAT_ID = "8723657210"
-
-bot = telebot.TeleBot(API_TOKEN)
 # Duplicate alert rokne ke liye alag-alag trackers
 last_indicator_signals = {}
 last_zone_signals = {}
@@ -316,19 +316,14 @@ def show_status(message):
     bot.reply_to(message, summary, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda message: True)
-@bot.message_handler(func=lambda message: True)
 def process_manual_request(message):
     print("🔥 TELEGRAM REQUEST RECEIVED")
     print("👤 CHAT ID:", message.chat.id)
     print("📝 USER MESSAGE:", message.text)
 
     try:
-        bot.reply_to(
-            message,
-            "🚀 Analyzing your stock signal..."
-        )
+        bot.reply_to(message, "🚀 Analyzing your stock signal...")
 
-        # User message ko symbol maan rahe hain
         symbol = message.text.strip().upper()
 
         if not symbol:
@@ -337,22 +332,6 @@ def process_manual_request(message):
 
         print("📊 ANALYZING SYMBOL:", symbol)
 
-        # Yahan tumhara existing analysis code chalega
-        # ------------------------------------------------
-        # Existing analysis code yahan rakho
-        # ------------------------------------------------
-
-    except Exception as e:
-        import traceback
-
-        print("❌ SIGNAL ERROR:", repr(e))
-        traceback.print_exc()
-
-        bot.reply_to(
-            message,
-            f"⚠️ Signal error: {str(e)[:300]}"
-        )
-    try:
         df_curr_raw = get_realtime_df(symbol, period="1mo", interval="15m")
         df_macro_raw = get_realtime_df(symbol, period="3mo", interval="1h")
 
@@ -397,18 +376,15 @@ def process_manual_request(message):
             f"🛑 **SL:** ₹{z_sl} | 🎯 **T1:** ₹{z_t1} | 🎯 **T2:** ₹{z_t2}\n"
             f"📋 **NOTE:** _{z_reason}_"
         )
-except Exception as e:
+        bot.send_message(message.chat.id, msg2, parse_mode="Markdown")
+
+    except Exception as e:
         print("❌ SIGNAL ERROR:", repr(e))
         traceback.print_exc()
         try:
-            bot.reply_to(
-                message,
-                f"⚠️ Signal error:\n{str(e)[:500]}"
-            )
+            bot.reply_to(message, f"⚠️ Signal error:\n{str(e)[:500]}")
         except Exception:
             pass
-    except Exception as send_error:
-        print("❌ TELEGRAM SEND ERROR:", repr(send_error))
 
 # ============================================================
 # 8. MAIN EXECUTION ENGINE
@@ -420,15 +396,12 @@ if __name__ == "__main__":
 
     print("🚀 Dual Strategy Quantum Bot active.")
 
-    # Force reset old sessions
     try:
         print("🔄 Starting bot polling...")
-
         bot.infinity_polling(
             timeout=20,
             long_polling_timeout=10,
             skip_pending=True
         )
-
     except Exception as e:
         print(f"❌ Bot polling error: {e}")
