@@ -215,77 +215,80 @@ def generate_zone_signals(df):
 # =====================================================================
 # 6. AUTOMATED WATCHLIST SCANNER (2 ALAG-ALAG TELEGRAM MESSAGES)
 # =====================================================================
+# =====================================================================
+# 6. AUTOMATED WATCHLIST SCANNER (FIXED AUTOMATIC ALERTS)
+# =====================================================================
 def auto_market_scanner():
+    print("🔄 Automatic Background Scanner Started...")
     while True:
         try:
             for symbol in WATCHLIST:
-                df_curr_raw = get_realtime_df(symbol, period="1mo", interval="15m")
-                df_macro_raw = get_realtime_df(symbol, period="3mo", interval="1h")
+                try:
+                    df_curr_raw = get_realtime_df(symbol, period="1mo", interval="15m")
+                    df_macro_raw = get_realtime_df(symbol, period="3mo", interval="1h")
 
-                if df_curr_raw.empty or df_macro_raw.empty: continue
+                    if df_curr_raw.empty or df_macro_raw.empty: 
+                        continue
 
-                df_curr = calculate_indicators(df_curr_raw)
-                df_macro = calculate_indicators(df_macro_raw)
+                    df_curr = calculate_indicators(df_curr_raw)
+                    df_macro = calculate_indicators(df_macro_raw)
 
-                # -------------------------------------------------------------
-                # CODE 1 ANALYSIS: QUANT INDICATOR STRATEGY
-                # -------------------------------------------------------------
-                ind_signal, ind_entry, ind_atr, ind_reason = generate_indicator_signals(df_curr, df_macro)
-                
-                if ind_signal in ["BUY", "SELL"]:
-                    if last_indicator_signals.get(symbol) != ind_signal:
-                        last_indicator_signals[symbol] = ind_signal
-                        sl, t1, t2 = calculate_risk(ind_signal, ind_entry, ind_atr)
-                        label = "🟢 [QUANT BUY SIGNAL]" if ind_signal == "BUY" else "🔴 [QUANT SELL SIGNAL]"
-                        
-                        msg1 = (
-                            f"{label}\n"
-                            f"Stock: **{symbol}**\n"
-                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"⚙️ **Strategy:** Indicator Breakout\n"
-                            f"💰 **ENTRY PRICE:** ₹{round(ind_entry, 2)}\n"
-                            f"🛑 **STOP LOSS:** ₹{sl}\n"
-                            f"🎯 **TARGET 1:** ₹{t1}\n"
-                            f"🎯 **TARGET 2:** ₹{t2}\n"
-                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"📋 **REASON:** _{ind_reason}_"
-                        )
-                        if CHAT_ID: bot.send_message(CHAT_ID, msg1, parse_mode="Markdown")
-                else:
-                    last_indicator_signals[symbol] = "HOLD"
+                    # 1. QUANT INDICATOR STRATEGY
+                    ind_signal, ind_entry, ind_atr, ind_reason = generate_indicator_signals(df_curr, df_macro)
+                    
+                    if ind_signal in ["BUY", "SELL"]:
+                        if last_indicator_signals.get(symbol) != ind_signal:
+                            last_indicator_signals[symbol] = ind_signal
+                            sl, t1, t2 = calculate_risk(ind_signal, ind_entry, ind_atr)
+                            label = "🟢 [QUANT BUY SIGNAL]" if ind_signal == "BUY" else "🔴 [QUANT SELL SIGNAL]"
+                            
+                            msg1 = (
+                                f"{label}\n"
+                                f"Stock: **{symbol}**\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"⚙️ **Strategy:** Indicator Breakout\n"
+                                f"💰 **ENTRY PRICE:** ₹{round(ind_entry, 2)}\n"
+                                f"🛑 **STOP LOSS:** ₹{sl}\n"
+                                f"🎯 **TARGET 1:** ₹{t1}\n"
+                                f"🎯 **TARGET 2:** ₹{t2}\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"📋 **REASON:** _{ind_reason}_"
+                            )
+                            bot.send_message(CHAT_ID, msg1, parse_mode="Markdown")
+                            print(f"✅ Auto Alert Sent for {symbol} (Quant)")
 
-                # -------------------------------------------------------------
-                # CODE 2 ANALYSIS: DEMAND & SUPPLY ZONE STRATEGY (GTF EYE STYLE)
-                # -------------------------------------------------------------
-                zone_signal, z_entry, z_sl, z_t1, z_t2, zone, z_reason = generate_zone_signals(df_curr)
+                    # 2. DEMAND & SUPPLY ZONE STRATEGY
+                    zone_signal, z_entry, z_sl, z_t1, z_t2, zone, z_reason = generate_zone_signals(df_curr)
 
-                if zone_signal in ["BUY_DEMAND", "SELL_SUPPLY"]:
-                    if last_zone_signals.get(symbol) != zone_signal:
-                        last_zone_signals[symbol] = zone_signal
-                        
-                        label_z = "🟢 [DEMAND ZONE ALERT]" if zone_signal == "BUY_DEMAND" else "🔴 [SUPPLY ZONE ALERT]"
-                        msg2 = (
-                            f"{label_z}\n"
-                            f"Stock: **{symbol}**\n"
-                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"📍 **ZONE RANGE:** ₹{zone['low']} - ₹{zone['high']}\n"
-                            f"💰 **ENTRY PRICE:** ₹{z_entry}\n"
-                            f"🛑 **STOP LOSS:** ₹{z_sl}\n"
-                            f"🎯 **TARGET 1:** ₹{z_t1}\n"
-                            f"🎯 **TARGET 2:** ₹{z_t2}\n"
-                            f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                            f"📋 **REASON:** _{z_reason}_"
-                        )
-                        if CHAT_ID: bot.send_message(CHAT_ID, msg2, parse_mode="Markdown")
-                else:
-                    last_zone_signals[symbol] = "HOLD"
+                    if zone_signal in ["BUY_DEMAND", "SELL_SUPPLY"]:
+                        if last_zone_signals.get(symbol) != zone_signal:
+                            last_zone_signals[symbol] = zone_signal
+                            
+                            label_z = "🟢 [DEMAND ZONE ALERT]" if zone_signal == "BUY_DEMAND" else "🔴 [SUPPLY ZONE ALERT]"
+                            msg2 = (
+                                f"{label_z}\n"
+                                f"Stock: **{symbol}**\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"📍 **ZONE RANGE:** ₹{zone['low']} - ₹{zone['high']}\n"
+                                f"💰 **ENTRY PRICE:** ₹{z_entry}\n"
+                                f"🛑 **STOP LOSS:** ₹{z_sl}\n"
+                                f"🎯 **TARGET 1:** ₹{z_t1}\n"
+                                f"🎯 **TARGET 2:** ₹{z_t2}\n"
+                                f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                                f"📋 **REASON:** _{z_reason}_"
+                            )
+                            bot.send_message(CHAT_ID, msg2, parse_mode="Markdown")
+                            print(f"✅ Auto Alert Sent for {symbol} (Zone)")
 
-                time.sleep(2)
+                    time.sleep(1)
+                except Exception as inner_e:
+                    print(f"Error scanning {symbol}: {inner_e}")
+                    continue
+
         except Exception as e:
-            print(f"Scanner Error: {e}")
+            print(f"Scanner Global Error: {e}")
 
-        time.sleep(180) # Rescan every 3 minutes
-
+        time.sleep(180) # 3 Min Sleep
 # =====================================================================
 # 7. TELEGRAM COMMAND HANDLERS (ALAG-ALAG MESSAGES IN BOT CHAT)
 # =====================================================================
