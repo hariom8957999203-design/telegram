@@ -397,23 +397,16 @@ def process_manual_request(message):
             f"🛑 **SL:** ₹{z_sl} | 🎯 **T1:** ₹{z_t1} | 🎯 **T2:** ₹{z_t2}\n"
             f"📋 **NOTE:** _{z_reason}_"
         )
-        bot.send_message(message.chat.id, msg2, parse_mode="Markdown")
-
-# Function ya loop ke andar alignment aisi honi chahiye:
-try:
-    # 4 spaces dekar code likhein
-    ticker = yf.Ticker(symbol)
 except Exception as e:
-    print(f"Error: {e}")
-
-    print("❌ SIGNAL ERROR:", repr(e))
-    traceback.print_exc()
-
-    try:
-        bot.reply_to(
-            message,
-            f"⚠️ Signal error:\n{str(e)[:500]}"
-        )
+        print("❌ SIGNAL ERROR:", repr(e))
+        traceback.print_exc()
+        try:
+            bot.reply_to(
+                message,
+                f"⚠️ Signal error:\n{str(e)[:500]}"
+            )
+        except Exception:
+            pass
     except Exception as send_error:
         print("❌ TELEGRAM SEND ERROR:", repr(send_error))
 
