@@ -399,8 +399,11 @@ def process_manual_request(message):
         )
         bot.send_message(message.chat.id, msg2, parse_mode="Markdown")
 
-   except Exception as e:
-    import traceback
+ try:
+    # Aapka code yahan
+    pass
+except Exception as e:
+    print(f"Error: {e}")
 
     print("❌ SIGNAL ERROR:", repr(e))
     traceback.print_exc()
